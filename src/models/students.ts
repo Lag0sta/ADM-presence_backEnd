@@ -8,7 +8,10 @@ const studentssSchema = new mongoose.Schema({
     endDate: Date,
     pointsLeft: Number,
     payementStatus: String,
-    amount2Pay: Number
+    amount2Pay: Number,
+    password: String,
+    email: String,
+    token: String,
 })
 
 const Student = mongoose.model('students', studentssSchema);

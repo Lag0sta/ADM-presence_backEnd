@@ -8,3 +8,8 @@ export const addStudentSchema = z.object({
     payementStatus: z.boolean(),
     amount2Pay: z.number().min(0, { message: "Le montant à payer doit être supérieur ou égal à 0" }),
 })
+
+export const updateCardSubscriptionSchema = z.object({
+    studentId: z.string().regex(objectIdRegex, { message: "L'id de l'élève doit être un ObjectId valide" }),
+    token: z.string().min(1, { message: "Le token est obligatoire" }),
+})

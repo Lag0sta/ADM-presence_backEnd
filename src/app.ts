@@ -2,13 +2,22 @@ import express from 'express';
 import cors from 'cors';
 
 import studentRouter from './routes/students';
+import authRouter from './routes/auths';
+
+import { startSubscriptionCron } from "./jobs/subscriptionCron";
+import { hashPassword } from "./utils/generatePswd";
+
+hashPassword("admin123");
 
 const app = express();
+
+startSubscriptionCron(); 
 
 app.use(cors());
 app.use(express.json());
 
 app.use('/students', studentRouter);
+app.use('/auths', authRouter);
 
 
 app.get('/', (_req, res) => {
