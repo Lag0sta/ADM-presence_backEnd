@@ -10,6 +10,7 @@ export function startSubscriptionCron() {
         subscription: "trimestriel",
         endDate: { $lte: now }
       },
+      
       {
         $set: {
           subscription: null,
