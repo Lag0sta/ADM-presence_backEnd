@@ -3,6 +3,7 @@ import cors from 'cors';
 
 import studentRouter from './routes/students';
 import authRouter from './routes/auths';
+import attendancesRouter from './routes/attendances';
 
 import { startSubscriptionCron } from "./jobs/subscriptionCron";
 import { hashPassword } from "./utils/generatePswd";
@@ -16,8 +17,9 @@ startSubscriptionCron();
 app.use(cors());
 app.use(express.json());
 
-app.use('/students', studentRouter);
 app.use('/auths', authRouter);
+app.use('/students', studentRouter);
+app.use('/attendances', attendancesRouter);
 
 
 app.get('/', (_req, res) => {
