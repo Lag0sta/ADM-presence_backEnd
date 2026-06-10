@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
 const attendancesSchema = new mongoose.Schema({
-    date: Date,
+    attendanceDay: String,
+    createdAt: Date,
     students: [{type: mongoose.Schema.Types.ObjectId, ref: 'students'}],
 })
 

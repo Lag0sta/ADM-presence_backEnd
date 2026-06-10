@@ -6,6 +6,13 @@ export const addNewAttendance = z.object({
     token: z.string().min(1, { message: "Le token est obligatoire" }),
    })
 
+   export const updateAttendance = z.object({
+    attendanceID: z.string().regex(objectIdRegex, { message: "L'id de la présence doit être un ObjectId valide" }),
+    students: z.array(z.string().regex(objectIdRegex, { message: "L'id de l'élève doit être un ObjectId valide" })),
+    token: z.string().min(1, { message: "Le token est obligatoire" }),
+   })
+   
+
    export const deleteStudent = z.object({
        attendanceId: z.string().regex(objectIdRegex, { message: "L'id de la présence doit être un ObjectId valide" }),
        studentId: z.string().regex(objectIdRegex, { message: "L'id de l'élève doit être un ObjectId valide" }),

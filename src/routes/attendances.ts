@@ -2,7 +2,7 @@ import { Router } from 'express';
 import Attendance from '../models/attendances';
 import Student from '../models/students';
 import { validate } from "../middlewares/validator";
-import { addNewAttendance, deleteStudent, deleteDate } from "../zodSchemas/attendances.schema";
+import { addNewAttendance, updateAttendance, deleteStudent, deleteDate } from "../zodSchemas/attendances.schema";
 
 const router = Router();
 
@@ -10,7 +10,7 @@ const router = Router();
 router.get("/", async (req, res) => {
     try {
         const response = await Attendance.find().populate("students", '_id apellido name');
-        res.json({ result: true, data: response });
+        res.json({ result: true, message: 'Présences trouvées', data: response });
 
     } catch (error) {
         console.error(error);
@@ -28,12 +28,42 @@ router.post("/addNewAttendance", validate(addNewAttendance), async (req, res) =>
         if (!auth) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
 
         const newAttencance = new Attendance({
-            date: new Date(),
+            attendanceDay: new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Brussels" }),
+            createdAt: new Date(),
             students: students
         });
 
         const savedAttendance = await newAttencance.save();
+        
         res.status(201).json({ result: true, message: 'Présence ajouté', data: savedAttendance });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Une erreur est survenue lors de la présence." });
+    }
+});
+
+
+router.put("/updateAttendance", validate(updateAttendance), async (req, res) => {
+    try {
+        const { students, token, attendanceID } = req.body;
+        const _id = attendanceID
+        const auth = await Student.findOne({ token });
+
+        if (!auth) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+
+        const updatedAttendance = await Attendance.findByIdAndUpdate(
+            _id
+            , { $addToSet: { 
+                students: {
+                    $each: students 
+                } 
+              } 
+            },
+            { returnDocument: "after" }
+        );
+        
+        res.status(201).json({ result: true, message: 'Présence ajouté', data: updatedAttendance });
 
     } catch (error) {
         console.error(error);
