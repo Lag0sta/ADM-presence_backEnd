@@ -23,31 +23,36 @@ router.get("/", async (req, res) => {
 // Ajouter un nouvel inscrit
 router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
     try {
-        const { apellido, name, subscription, payementStatus, amount2Pay } = req.body;
-        console.log("données reçues:", { apellido, name, subscription, payementStatus, amount2Pay })
+        const { apellido, name, subscriptionType, paymentStatus, amount2Pay } = req.body;
+        console.log("données reçues:", { apellido, name, subscriptionType, paymentStatus, amount2Pay })
 
         const period = getSubscriptionPeriod(new Date());
-        let startDate;
-        let endDate;
-        let pointsLeft;
-        if (subscription === "trimestriel") {
-            startDate = period.startDate;
-            endDate = period.endDate;
-        } else if (subscription === "carte") {
-            pointsLeft = 10;
+
+        if (!["trimestriel", "carte"].includes(subscriptionType)) {
+            return res.status(400).json({ message: "subscriptionType invalide" });
         }
+        
+        const subscriptionData = {
+            plan: subscriptionType,
+            paymentStatus: paymentStatus,
+            amount2Pay: amount2Pay,
+            ...(subscriptionType === "trimestriel" && {
+                startDate: period.startDate,
+                endDate: period.endDate,
+            }),
+            ...(subscriptionType === "carte" && {
+                pointsLeft: 10,
+            }),
+        };
+
+        const newStudent = new Student({
+            apellido,
+            name,
+            subscription: subscriptionData,
+            isAdmin: false
+        });
 
         console.log("période calculée:", period)
-        const newStudent = new Student({
-            apellido: apellido,
-            name: name,
-            subscription: subscription,
-            startDate: startDate,
-            endDate: endDate,
-            pointsLeft: pointsLeft,
-            payementStatus: payementStatus,
-            amount2Pay: amount2Pay
-        });
 
         const savedStudent = await newStudent.save();
         res.status(201).json({ result: true, message: 'élève ajouté', data: savedStudent });
@@ -60,44 +65,42 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
 
 router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res) => {
     try {
-        const { studentId, subscription, amount2Pay, payementStatus, token } = req.body;
+        const { studentId, subscriptionType, amount2Pay, paymentStatus, token } = req.body;
 
         const isAdmin = await Student.findOne({ token });
 
         if (!isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
-        
+
         const period = getSubscriptionPeriod(new Date());
-        let startDate;
-        let endDate;
-        let pointsLeft;
+        
+        let updateData : Record<string, any>  = {
+            "subscription.plan": subscriptionType,
+            "subscription.amount2Pay": amount2Pay,
+            "subscription.paymentStatus": paymentStatus,
+        };
 
-        if (subscription === "trimestriel") {
-            startDate = period.startDate;
-            endDate = period.endDate;
-
-            const student = await Student.findByIdAndUpdate(
-                studentId,
-                {$set: { subscription: subscription, startDate: startDate, endDate: endDate, amount2Pay: amount2Pay, payementStatus: payementStatus }},
-                { returnDocument: "after" }
-            );
-
-            if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
-            
-            res.status(200).json({ result: true, message: 'Abonnement mis à jour', data: student });
-
-        } else if (subscription === "carte") {
-            pointsLeft = 10;
-
-            const student = await Student.findByIdAndUpdate(
-                studentId,
-                {$set: { subscription: subscription, pointsLeft: pointsLeft, amount2Pay: amount2Pay, payementStatus: payementStatus }},
-                { returnDocument: "after" }
-            );
-
-            if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
-            
-            res.status(200).json({ result: true, message: 'Abonnement mis à jour', data: student });
+        if (subscriptionType === "trimestriel") {
+            updateData["subscription.startDate"] = period.startDate;
+            updateData["subscription.endDate"] = period.endDate;
+            updateData["subscription.pointsLeft"] = undefined; // optionnel
         }
+
+        if (subscriptionType === "carte") {
+            updateData["subscription.pointsLeft"] = 10;
+            updateData["subscription.startDate"] = undefined;
+            updateData["subscription.endDate"] = undefined;
+        }
+
+             const student = await Student.findByIdAndUpdate(
+            studentId,
+            { $set: updateData },
+            { new: true }
+        );
+
+            if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
+
+            res.status(200).json({ result: true, message: 'Abonnement mis à jour', data: student });
+
 
     } catch (error) {
         console.error(error);
@@ -112,10 +115,10 @@ router.put("/updateCardSubscription", validate(updateCardSubscriptionSchema), as
         const isAdmin = await Student.findOne({ token });
 
         if (!isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
-        
+
         const student = await Student.findByIdAndUpdate(
             studentId,
-            {$inc: { pointsLeft: -1 }},
+            { $inc: { pointsLeft: -1 } },
             { returnDocument: "after" }
         );
 

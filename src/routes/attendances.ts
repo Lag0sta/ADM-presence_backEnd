@@ -21,11 +21,12 @@ router.get("/", async (req, res) => {
 // Poster une nouvelle fiche de présence
 router.post("/addNewAttendance", validate(addNewAttendance), async (req, res) => {
     try {
+        console.log("start")
         const { students, token } = req.body;
 
         const auth = await Student.findOne({ token });
 
-        if (!auth) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!auth || !auth.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
 
         const newAttencance = new Attendance({
             attendanceDay: new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Brussels" }),
@@ -34,8 +35,32 @@ router.post("/addNewAttendance", validate(addNewAttendance), async (req, res) =>
         });
 
         const savedAttendance = await newAttencance.save();
-        
-        res.status(201).json({ result: true, message: 'Présence ajouté', data: savedAttendance });
+
+        const studentsData = await Student.find({
+            _id: { $in: students },
+        })
+            console.log(studentsData);
+            console.log("hello world")
+
+        if (studentsData.length === 0) return res.status(404).json({ message: "Élèves introuvables" });
+
+        for (const student of studentsData) {
+            if (student?.subscription?.plan === "carte") {
+                await Student.bulkWrite(
+                    studentsData
+                        .filter(s => s?.subscription?.plan === "carte")
+                        .map(s => ({
+                            updateOne: {
+                                filter: { _id: s._id },
+                                update: { $inc: { "subscription.pointsLeft": -1 } }
+                            }
+                        }))
+                );
+            }
+        }
+
+        res.status(201).json({ result: true, message: 'Présence ajouté et carte mis à jour', data: { savedAttendance, studentsData } });
+
 
     } catch (error) {
         console.error(error);
@@ -50,18 +75,42 @@ router.put("/updateAttendance", validate(updateAttendance), async (req, res) => 
         const _id = attendanceID
         const auth = await Student.findOne({ token });
 
-        if (!auth) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!auth || !auth.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
 
         const updatedAttendance = await Attendance.findByIdAndUpdate(
             _id
-            , { $addToSet: { 
-                students: {
-                    $each: students 
-                } 
-              } 
+            , {
+                $addToSet: {
+                    students: {
+                        $each: students
+                    }
+                }
             },
             { returnDocument: "after" }
         );
+
+         const studentsData = await Student.find({
+            _id: { $in: students },
+        })
+            console.log(studentsData);
+            console.log("hello world")
+
+        if (studentsData.length === 0) return res.status(404).json({ message: "Élèves introuvables" });
+
+        for (const student of studentsData) {
+            if (student?.subscription?.plan === "carte") {
+                await Student.bulkWrite(
+                    studentsData
+                        .filter(s => s?.subscription?.plan === "carte")
+                        .map(s => ({
+                            updateOne: {
+                                filter: { _id: s._id },
+                                update: { $inc: { "subscription.pointsLeft": -1 } }
+                            }
+                        }))
+                );
+            }
+        }
         
         res.status(201).json({ result: true, message: 'Présence ajouté', data: updatedAttendance });
 
@@ -77,7 +126,7 @@ router.delete("/deleteStudent", validate(deleteStudent), async (req, res) => {
 
         const auth = await Student.findOne({ token });
 
-        if (!auth) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!auth || !auth.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
 
         const response = await Attendance.findByIdAndUpdate(attendanceId,
             { $pull: { students: studentId } },
@@ -101,7 +150,7 @@ router.delete("/deleteDate/:attendanceId", validate(deleteDate), async (req, res
 
         const auth = await Student.findOne({ token });
 
-        if (!auth) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!auth || !auth.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
 
         const response = await Attendance.findByIdAndDelete(attendanceId);
 

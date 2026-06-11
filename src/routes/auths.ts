@@ -22,6 +22,8 @@ router.post("/signIn", validate(signIn), async (req, res) => {
 
         if (!isMatch) return res.status(401).json({ message: "mot de passe incorrects" });
         
+        if(!signIn.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        
         const token = crypto.randomBytes(32).toString("hex");
         const signInUpdate = await Student.findOneAndUpdate({ apellido, email }, 
                                                             { $set: { token: token } }, 

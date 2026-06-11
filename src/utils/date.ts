@@ -1,4 +1,5 @@
 export function getSubscriptionPeriod(date = new Date()) {
+  
   const year = date.getFullYear();
   const month = date.getMonth();
 
