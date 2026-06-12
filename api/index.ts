@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import serverless from 'serverless-http';
-import app from '../app';
-import { connectToDatabase } from '../mongodb';
+import app from '../src/app';
+import { connectToDatabase } from '../src/mongodb';
 
 const uri = process.env.CONNECTION_STRING || '';
 
