@@ -6,10 +6,10 @@ import crypto from "crypto";
 import bcrypt from "bcrypt";
 
 const router = Router();
-//,validate(signIn)
+//
 
 // Connexion d'un Administrateur
-router.post("/signIn" , async (req, res) => {
+router.post("/signIn",validate(signIn) , async (req, res) => {
     try {
         const { apellido, password, email } = req.body;
 
