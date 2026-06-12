@@ -6,6 +6,7 @@ import { connectToDatabase } from './mongodb'; // ou './models/connection' selon
 
 const uri = process.env.CONNECTION_STRING || '';
 
+
 const start = async () => {
   try {
     await connectToDatabase(uri);  // <-- passer la chaîne ici
