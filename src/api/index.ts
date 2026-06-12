@@ -1,29 +1,29 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 dotenv.config();
 
-import serverless from "serverless-http";
-import app from "../app";
-import { connectToDatabase } from "../mongodb";
+import serverless from 'serverless-http';
+import app from '../app';
+import { connectToDatabase } from '../mongodb';
 
-let cached = (global as any).mongooseCache || {
-  conn: false,
+const uri = process.env.CONNECTION_STRING || '';
+
+// On connecte la DB une seule fois au premier appel, 
+// pour éviter de reconnecter à chaque invocation serverless
+
+let isConnected = false;
+
+const handler = async (req: any, res: any) => {
+  if (!isConnected) {
+    try {
+      await connectToDatabase(uri);
+      isConnected = true;
+    } catch (error) {
+      console.error('❌ Erreur lors de la connexion à la DB dans Vercel', error);
+      res.status(500).send('Erreur serveur');
+      return;
+    }
+  }
+  return app(req, res);
 };
 
-(global as any).mongooseCache = cached;
-
-const handler = serverless(app);
-
-
-export default async function (req: any, res: any) {
-  try {
-    if (!cached.conn) {
-      await connectToDatabase();
-      cached.conn = true;
-    }
-
-     return handler(req, res);
-  } catch (error) {
-    console.error("❌ DB error:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-}
+export default handler;
