@@ -5,14 +5,11 @@ import studentRouter from './routes/students';
 import authRouter from './routes/auths';
 import attendancesRouter from './routes/attendances';
 
-import { startSubscriptionCron } from "./jobs/subscriptionCron";
 import { hashPassword } from "./utils/generatePswd";
 
 hashPassword("admin123");
 
 const app = express();
-
-startSubscriptionCron(); 
 
 app.use(cors());
 app.use(express.json());
