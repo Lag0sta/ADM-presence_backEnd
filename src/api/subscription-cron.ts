@@ -1,7 +1,7 @@
 declare const process: any;
 
-import { connectToDatabase } from "../src/mongodb";
-import { runSubscriptionJob } from "../src/jobs/subscriptionJob";
+import { connectToDatabase } from "../mongodb";
+import { runSubscriptionJob } from "../jobs/subscriptionJob";
 
 export default async function handler(req: any, res: any) {
   try {

@@ -1,18 +1,34 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-export async function connectToDatabase(uri: string) {
-  if (mongoose.connection.readyState === 1) {
-    console.log('✅ MongoDB déjà connecté (Mongoose)');
-    return;
+const MONGO_URI = process.env.CONNECTION_STRING || "";
+
+if (!MONGO_URI) {
+  throw new Error("❌ CONNECTION_STRING is missing");
+}
+
+// Global cache for Vercel serverless
+let cached = (global as any).mongooseCache;
+
+if (!cached) {
+  cached = (global as any).mongooseCache = {
+    conn: null,
+    promise: null,
+  };
+}
+
+export async function connectToDatabase() {
+  // If already connected → reuse it
+  if (cached.conn) {
+    return cached.conn;
   }
-  if (!uri) {
-    throw new Error('La chaîne de connexion MongoDB est vide');
+
+  // If connection is not started yet → start it once
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGO_URI).then((mongoose) => {
+      return mongoose;
+    });
   }
-  try {
-    await mongoose.connect(uri, {connectTimeoutMS: 2000});
-    console.log('✅ MongoDB connecté avec Mongoose');
-  } catch (error) {
-    console.error('❌ Erreur connexion MongoDB:', error);
-    throw error;
-  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
 }
