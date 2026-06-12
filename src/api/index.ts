@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import serverless from "serverless-http";
 import app from "../app";
 import { connectToDatabase } from "../mongodb";
 
@@ -10,13 +11,17 @@ let cached = (global as any).mongooseCache || {
 
 (global as any).mongooseCache = cached;
 
-export default async function handler(req: any, res: any) {
+const handler = serverless(app);
+
+
+export default async function (req: any, res: any) {
   try {
     if (!cached.conn) {
-     await connectToDatabase();
+      await connectToDatabase();
+      cached.conn = true;
     }
 
-    return app(req, res);
+     return handler(req, res);
   } catch (error) {
     console.error("❌ DB error:", error);
     return res.status(500).json({ message: "Internal server error" });
