@@ -22,3 +22,4 @@ export async function connectToDatabase(uri: string) {
     throw error;
   }
 }
+

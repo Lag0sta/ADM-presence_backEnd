@@ -10,7 +10,9 @@ const router = Router();
 router.get("/", async (req, res) => {
     try {
         const response = await Attendance.find().populate("students", '_id apellido name');
-        res.json({ result: true, message: 'Présences trouvées', data: response });
+        // res.json({ result: true, message: `Liste des présences trouvé : ${response.length}` , data: response });
+        res.json({ result: true, message: `Liste des présences trouvé : xxx` , data: response });
+
 
     } catch (error) {
         console.error(error);

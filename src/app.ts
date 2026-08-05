@@ -4,6 +4,7 @@ import cors from 'cors';
 import studentRouter from './routes/students';
 import authRouter from './routes/auths';
 import attendancesRouter from './routes/attendances';
+import cronRouter from "./routes/cron";
 
 import { hashPassword } from "./utils/generatePswd";
 
@@ -14,6 +15,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use("/cron", cronRouter);
 app.use('/auths', authRouter);
 app.use('/students', studentRouter);
 app.use('/attendances', attendancesRouter);
