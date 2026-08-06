@@ -2,7 +2,7 @@ import { Router } from 'express';
 import Student from '../models/students';
 import { validate } from "../middlewares/validator";
 import { getSubscriptionPeriod } from "../utils/date";
-import { addStudentSchema, updateCardSubscriptionSchema, newSubscriptionSchema } from "../zodSchemas/students.schema";
+import { addStudentSchema, updateCardSubscriptionSchema, newSubscriptionSchema, updateStudentFileSchema } from "../zodSchemas/students.schema";
 
 const router = Router();
 
@@ -60,24 +60,6 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
         console.error(error);
         res.status(500).json({ message: "Une erreur est survenue lors de l'ajout de l'inscrit." });
     }
-});
-
-router.post("/test", async (req, res) => {
-  console.log("Début");
-try{
- const { token } = req.body;
-  console.log("Token :", token);
-
-  const data = await Student.findOne({ token : token });
-
-  console.log("Data :", data);
-
-  return res.json(data);
-}catch (error) {
-  console.error(error);
-  res.status(500).json({ message: "Une erreur est survenue lors de la recherche des inscrits." });
-}
- 
 });
 
 router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res) => {
@@ -155,5 +137,53 @@ router.put("/updateCardSubscription", validate(updateCardSubscriptionSchema), as
     }
 });
 
+router.put("/updateCardSubscription", validate(updateCardSubscriptionSchema), async (req, res) => {
+    try {
+        const { studentId, token } = req.body;
+
+        const isAdmin = await Student.findOne({ token });
+
+        if (!isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+
+        const student = await Student.findByIdAndUpdate(
+            studentId,
+            { $inc: { pointsLeft: -1 } },
+            { returnDocument: "after" }
+        );
+
+        if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
+
+        res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
+    }
+});
+
+//MAJ des infos de la fiche étudiante
+router.put("/updateStudentFile", validate(updateStudentFileSchema), async (req, res) => {
+    try {
+        const { studentId, token, updateData } = req.body;
+
+        const isAdmin = await Student.findOne({ token });
+
+        if (!isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+
+        const student = await Student.findByIdAndUpdate(
+            studentId,
+            { $set: updateData },
+            { new: true }
+        );
+
+        if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
+
+        res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
+    }
+});
 
 export default router;
