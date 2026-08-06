@@ -62,13 +62,33 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
     }
 });
 
+router.post("/test", async (req, res) => {
+  console.log("Début");
+try{
+ const { token } = req.body;
+  console.log("Token :", token);
+
+  const data = await Student.findOne({ token : token });
+
+  console.log("Data :", data);
+
+  return res.json(data);
+}catch (error) {
+  console.error(error);
+  res.status(500).json({ message: "Une erreur est survenue lors de la recherche des inscrits." });
+}
+ 
+});
+
 router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res) => {
     try {
         const { studentId, subscriptionType, amount2Pay, token } = req.body;
 
-        const isAdmin = await Student.findOne({ token });
+        const user = await Student.findOne({ token });
 
-        if (!isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!user) return res.status(403).json({ message: "administrateurs non trouvé" });
+
+        if (!user.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
 
         const period = getSubscriptionPeriod(new Date());
         
@@ -102,7 +122,7 @@ router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
+        res.status(500).json({ message: error });
     }
 });
 
