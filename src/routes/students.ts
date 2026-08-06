@@ -90,11 +90,16 @@ router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res
 
         if (!user.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
 
+        const studentPayementInfo = await Student.findById(studentId);
+
+        if (!studentPayementInfo) return res.status(404).json({ message: "Étudiant introuvable" });
+
+        const notPayed = studentPayementInfo.subscription?.amount2Pay || 0
         const period = getSubscriptionPeriod(new Date());
         
         let updateData : Record<string, any>  = {
             "subscription.plan": subscriptionType,
-            "subscription.amount2Pay": amount2Pay,
+            "subscription.amount2Pay": amount2Pay + notPayed,
         };
 
         if (subscriptionType === "trimestriel") {
