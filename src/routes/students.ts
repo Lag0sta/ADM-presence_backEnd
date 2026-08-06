@@ -23,8 +23,8 @@ router.get("/", async (req, res) => {
 // Ajouter un nouvel inscrit
 router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
     try {
-        const { apellido, name, subscriptionType, paymentStatus, amount2Pay } = req.body;
-        console.log("données reçues:", { apellido, name, subscriptionType, paymentStatus, amount2Pay })
+        const { apellido, name, subscriptionType, amount2Pay } = req.body;
+        console.log("données reçues:", { apellido, name, subscriptionType, amount2Pay })
 
         const period = getSubscriptionPeriod(new Date());
 
@@ -34,7 +34,6 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
         
         const subscriptionData = {
             plan: subscriptionType,
-            paymentStatus: paymentStatus,
             amount2Pay: amount2Pay,
             ...(subscriptionType === "trimestriel" && {
                 startDate: period.startDate,
@@ -65,7 +64,7 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
 
 router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res) => {
     try {
-        const { studentId, subscriptionType, amount2Pay, paymentStatus, token } = req.body;
+        const { studentId, subscriptionType, amount2Pay, token } = req.body;
 
         const isAdmin = await Student.findOne({ token });
 
@@ -76,7 +75,6 @@ router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res
         let updateData : Record<string, any>  = {
             "subscription.plan": subscriptionType,
             "subscription.amount2Pay": amount2Pay,
-            "subscription.paymentStatus": paymentStatus,
         };
 
         if (subscriptionType === "trimestriel") {

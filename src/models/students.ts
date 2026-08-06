@@ -16,7 +16,6 @@ const studentsSchema = new mongoose.Schema({
 
     pointsLeft: Number,
 
-    paymentStatus: Boolean,
     amount2Pay: Number,
   },
 
