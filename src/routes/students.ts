@@ -10,7 +10,7 @@ const router = Router();
 router.get("/", async (req, res) => {
     try {
         const registrants = await Student.find().select(
-            "_id apellido name subscription endDate pointsLeft payementStatus amount2Pay"
+            "_id apellido name subscription endDate pointsLeft payementStatus amount2Pay isAdmin"
         );;
         res.json({ result: true, data: registrants });
 
@@ -170,6 +170,7 @@ router.put("/updateStudentFile", validate(updateStudentFileSchema), async (req, 
 
         if (!isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
 
+        // Vérification si la fiche appartient à un administrateur
         const authorisation = await Student.findOne({ _id: studentId })
         if (!authorisation) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
@@ -196,7 +197,7 @@ router.put("/updateStudentFile", validate(updateStudentFileSchema), async (req, 
 
             res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
         }
-        
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ result: false, message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
