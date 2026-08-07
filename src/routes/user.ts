@@ -15,9 +15,9 @@ router.post("/userInfo", validate(userInfo), async (req, res) => {
             "_id apellido name subscription endDate pointsLeft payementStatus amount2Pay isAdmin"
         );;
 
-        if (!user) return res.status(404).json({ message: "Étudiant introuvable" });
+        if (!user) return res.status(404).json({result: false, message: "Étudiant introuvable" });
 
-        if (user.token !== token) return res.status(403).json({ message: "Token invalide" });
+        if (user.token !== token) return res.status(403).json({result: false, message: "Token invalide" });
         
         res.json({ result: true, data: user });
 
