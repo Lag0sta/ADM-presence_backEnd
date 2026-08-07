@@ -4,6 +4,7 @@ import cors from 'cors';
 import studentRouter from './routes/students';
 import authRouter from './routes/auths';
 import attendancesRouter from './routes/attendances';
+import userRouter from './routes/user';
 import cronRouter from "./routes/cron";
 
 import { hashPassword } from "./utils/generatePswd";
@@ -19,7 +20,7 @@ app.use("/cron", cronRouter);
 app.use('/auths', authRouter);
 app.use('/students', studentRouter);
 app.use('/attendances', attendancesRouter);
-
+app.use('/users', userRouter);
 
 app.get('/', (_req, res) => {
   res.send('Bienvenue sur ADM Présence 👋');
