@@ -31,7 +31,7 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
         if (!["trimestriel", "carte"].includes(subscriptionType)) {
             return res.status(400).json({ message: "subscriptionType invalide" });
         }
-        
+
         const subscriptionData = {
             plan: subscriptionType,
             amount2Pay: amount2Pay,
@@ -78,8 +78,8 @@ router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res
 
         const notPayed = studentPayementInfo.subscription?.amount2Pay || 0
         const period = getSubscriptionPeriod(new Date());
-        
-        let updateData : Record<string, any>  = {
+
+        let updateData: Record<string, any> = {
             "subscription.plan": subscriptionType,
             "subscription.amount2Pay": amount2Pay + notPayed,
         };
@@ -96,15 +96,15 @@ router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res
             updateData["subscription.endDate"] = undefined;
         }
 
-             const student = await Student.findByIdAndUpdate(
+        const student = await Student.findByIdAndUpdate(
             studentId,
             { $set: updateData },
             { new: true }
         );
 
-            if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
+        if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
 
-            res.status(200).json({ result: true, message: 'Abonnement mis à jour', data: student });
+        res.status(200).json({ result: true, message: 'Abonnement mis à jour', data: student });
 
 
     } catch (error) {
@@ -170,16 +170,33 @@ router.put("/updateStudentFile", validate(updateStudentFileSchema), async (req, 
 
         if (!isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
 
-        const student = await Student.findByIdAndUpdate(
-            studentId,
-            { $set: updateData },
-            { new: true }
-        );
+        const authorisation = await Student.findOne({ _id: studentId })
+        if (!authorisation) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
-        if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
+        if (!authorisation.isAdmin) {
+            const student = await Student.findByIdAndUpdate(
+                studentId,
+                { $set: updateData.student },
+                { new: true }
+            );
 
-        res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
+            if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
+            res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
+        }
+
+        if (authorisation.isAdmin) {
+            const student = await Student.findByIdAndUpdate(
+                studentId,
+                { $set: updateData.admin },
+                { new: true }
+            );
+
+            if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
+
+            res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
+        }
+        
     } catch (error) {
         console.error(error);
         res.status(500).json({ result: false, message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
