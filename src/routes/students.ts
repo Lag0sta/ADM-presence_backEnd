@@ -168,7 +168,7 @@ router.put("/updateStudentFile", validate(updateStudentFileSchema), async (req, 
 
         const isAdmin = await Student.findOne({ token });
 
-        if (!isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
 
         const student = await Student.findByIdAndUpdate(
             studentId,
@@ -176,13 +176,13 @@ router.put("/updateStudentFile", validate(updateStudentFileSchema), async (req, 
             { new: true }
         );
 
-        if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
+        if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
         res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
+        res.status(500).json({ result: false, message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
     }
 });
 
