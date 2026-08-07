@@ -11,13 +11,11 @@ router.post("/userInfo", validate(userInfo), async (req, res) => {
         const { apellido, token } = req.body;
         console.log("données reçues:", { apellido, token });
 
-        const user = await Student.findOne({ apellido }).select(
+        const user = await Student.findOne({ apellido, token }).select(
             "apellido name subscription endDate pointsLeft payementStatus amount2Pay isAdmin"
         );
 
         if (!user) return res.status(404).json({result: false, message: "Étudiant introuvable" });
-
-        if (user.token !== token) return res.status(403).json({result: false, message: "Token invalide" });
         
         res.json({ result: true, data: user });
 
