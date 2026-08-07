@@ -14,17 +14,17 @@ export const updateCardSubscriptionSchema = z.object({
 })
 
 export const updateStudentFileSchema = z.object({
-    studentId: z.string().regex(objectIdRegex, { message: "L'id de l'élève doit être un ObjectId valide" }),
-    token: z.string().min(1, { message: "Le token est obligatoire" }),
+    studentId: z.string({ message: "L'id de l'élève est obligatoire et doit être une chaîne de caractères"}).regex(objectIdRegex, { message: "L'id de l'élève doit être un ObjectId valide" }),
+    token: z.string({message: "Le token est obligatoire et doit être une chaîne de caractères",}).min(1, { message: "Le token ne peut pas être vide" }),
     updateData: z.object({
-        apellido: z.string().optional(),
-        name: z.string().optional(),
+        apellido: z.string({message: "Le apellido doit être une chaîne de caractères",}).optional(),
+        name: z.string({message: "Le nom doit être une chaîne de caractères",}).optional(),
         subscription: z.object({
-            plan: z.enum(["trimestriel", "carte"]).optional(),
-            startDate: z.coerce.date().optional(),
-            endDate: z.coerce.date().optional(),
-            pointsLeft: z.number().optional(),
-            amount2Pay: z.number().optional(),
+            plan: z.enum(["trimestriel", "carte"], {message:"Le type d'abonnement doit être 'trimestriel' ou 'carte'",}).optional(),
+            startDate: z.coerce.date({message: "La date de début n'est pas valide",}).optional(),
+            endDate: z.coerce.date({message: "La date de fin n'est pas valide",}).optional(),
+            pointsLeft: z.number({message: "Le nombre de points doit être un nombre",}).optional(),
+            amount2Pay: z.number({message: "Le montant à payer doit être un nombre",}).optional(),
         }).optional(),
     }),
 })
