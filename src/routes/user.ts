@@ -36,18 +36,18 @@ router.put("/updateUserFile", validate(updateUserInfo), async (req, res) => {
         if (!isAdmin?.isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
 
         const authorisation = await Student.findOne({ token })
-        if (!authorisation) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
+        if (!authorisation) return res.status(404).json({ result: false, message: "Autorisation non trouvé" });
 
         if (authorisation.isAdmin) {
-            const student = await Student.findByIdAndUpdate(
+            const user = await Student.findByIdAndUpdate(
                 authorisation._id,
                 { $set: updateData},
                 { new: true }
             );
 
-            if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
+            if (!user) return res.status(404).json({ result: false, message: "utilisateur introuvable" });
 
-            res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
+            res.status(200).json({ result: true, message: 'Élève mis à jour', data: user });
         }
     } catch (error) {
         console.error(error);
