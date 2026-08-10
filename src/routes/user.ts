@@ -30,8 +30,9 @@ router.post("/userInfo", validate(userInfo), async (req, res) => {
 router.put("/updateUserFile", validate(updateUserInfo), async (req, res) => {
    try {
         const { token, updateData } = req.body;
+        const apellido = updateData.apellido
 
-        const isAdmin = await Student.findOne({ token });
+        const isAdmin = await Student.findOne({ token, apellido });
 
         if (!isAdmin?.isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
 

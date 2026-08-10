@@ -12,7 +12,7 @@ const router = Router();
 
 router.post("/authValidation", validate(authValidation), async (req, res) => {
     try{
-        const { token, password } = req.body;
+        const { token, password, email } = req.body;
 
         const authResponse = await Student.findOne({ token });
 
@@ -26,7 +26,7 @@ router.post("/authValidation", validate(authValidation), async (req, res) => {
 
 
         res.status(200).json({ result: true, message: "Authentification reussie", data: authResponse });
-        
+
     }catch(error){
         console.error(error);
         res.status(500).json({result: false, message: "Une erreur est survenue lors de la connexion." });
