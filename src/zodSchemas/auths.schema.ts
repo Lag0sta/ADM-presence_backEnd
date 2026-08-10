@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export const authValidation = z.object({
+    token: z.string().min(1, { message: "Le token est obligatoire" }),
+    password: z.string().min(6, { message: "Le mot de passe doit faire au moins 6 caractères" }),
+})
+
 export const signIn = z.object({
     apellido: z.string().min(1, { message: "Le nom est obligatoire" }),
     password: z.string().min(6, { message: "Le mot de passe doit faire au moins 6 caractères" }),

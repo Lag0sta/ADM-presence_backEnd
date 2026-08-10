@@ -5,8 +5,33 @@ import { signIn, logOut } from "../zodSchemas/auths.schema";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 
+import { authValidation } from "../zodSchemas/auths.schema";
+
 const router = Router();
 //
+
+router.post("/authValidation", validate(authValidation), async (req, res) => {
+    try{
+        const { token, password } = req.body;
+
+        const authResponse = await Student.findOne({ token });
+
+        if (!authResponse) return res.status(401).json({result: false, message: "Identifiants incorrects" });
+        if(!authResponse.isAdmin) return res.status(403).json({result: false, message: "Accès réservé aux administrateurs" });
+        if (!authResponse.password) return res.status(401).json({result: false, message: "Utilisateur sans mot de passe" });
+   
+        const isMatch = await bcrypt.compare(password, authResponse.password);
+
+        if (!isMatch) return res.status(500).json({result: false, message: "Mot de passe éronnée"});
+
+
+        res.status(200).json({ result: true, message: "Authentification reussie", data: authResponse });
+        
+    }catch(error){
+        console.error(error);
+        res.status(500).json({result: false, message: "Une erreur est survenue lors de la connexion." });
+    }
+})
 
 // Connexion d'un Administrateur
 router.post("/signIn",validate(signIn) , async (req, res) => {
