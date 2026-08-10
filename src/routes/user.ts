@@ -40,7 +40,8 @@ router.put("/updateUserFile", validate(updateUserInfo), async (req, res) => {
 
         if (authorisation.isAdmin) {
             const student = await Student.findByIdAndUpdate(
-                { $set: updateData.admin },
+                authorisation._id,
+                { $set: updateData},
                 { new: true }
             );
 
