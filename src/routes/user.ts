@@ -62,10 +62,13 @@ router.put("/updateUserFile", validate(updateUserFile), async (req, res) => {
 router.put("/updateUserInfo", validate(updateUserInfo), async (req, res) => {
     try {
         const { token, apellido, password, email } = req.body;
+
+        const hashedPassword = await hashPassword(password);
+
         const updateData = {
             apellido,
             email,
-            password: hashPassword(password),
+            password: hashedPassword,
         };
         const authorisation = await Student.findOne({ token })
         if (!authorisation || !authorisation.isAdmin) return res.status(404).json({ result: false, message: "Autorisation non trouvé" });
