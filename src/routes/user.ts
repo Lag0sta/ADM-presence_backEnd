@@ -83,7 +83,7 @@ router.put("/updateUserInfo", validate(updateUserInfo), async (req, res) => {
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ result: false, message: "Une erreur est survenue lors de la recherche de l'utilisateur." });
+        res.status(500).json({ result: false, message: error });
     }
 });
 

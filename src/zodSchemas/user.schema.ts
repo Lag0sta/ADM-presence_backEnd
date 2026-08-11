@@ -23,7 +23,7 @@ export const updateUserFile = z.object({
 
 export const updateUserInfo = z.object({
     token: z.string().min(1, { message: "Le token est obligatoire" }),
-        apellido: z.string().min(1, { message: "l'Appellido est obligatoire" }),
-        password: z.string().min(6, { message: "Le mot de passe doit faire au moins 6 caractères" }),
-        email: z.email({ message: "L'email est obligatoire" }),
+    apellido: z.string().min(1, { message: "l'Appellido est obligatoire" }),
+    password: z.string().min(6, { message: "Le mot de passe doit faire au moins 6 caractères" }),
+    email: z.email({ message: "L'email est obligatoire" }),
 })
