@@ -70,6 +70,7 @@ router.put("/updateUserInfo", validate(updateUserInfo), async (req, res) => {
             email,
             password: hashedPassword,
         };
+        
         const authorisation = await Student.findOne({ token })
         if (!authorisation || !authorisation.isAdmin) return res.status(404).json({ result: false, message: "Autorisation non trouvé" });
 
