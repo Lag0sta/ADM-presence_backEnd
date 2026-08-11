@@ -17,7 +17,9 @@ router.post("/authValidation", validate(authValidation), async (req, res) => {
         const authResponse = await Student.findOne({ token });
 
         if (!authResponse) return res.status(401).json({result: false, message: "Identifiants incorrects" });
+
         if(!authResponse.isAdmin) return res.status(403).json({result: false, message: "Accès réservé aux administrateurs" });
+        
         if (!authResponse.password) return res.status(401).json({result: false, message: "Utilisateur sans mot de passe" });
    
         const isMatch = await bcrypt.compare(password, authResponse.password);

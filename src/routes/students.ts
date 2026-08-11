@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de la recherche des inscrits." });
+        res.status(500).json({result: false, message: "Une erreur est survenue lors de la recherche des inscrits." });
     }
 });
 
@@ -29,7 +29,7 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
         const period = getSubscriptionPeriod(new Date());
 
         if (!["trimestriel", "carte"].includes(subscriptionType)) {
-            return res.status(400).json({ message: "subscriptionType invalide" });
+            return res.status(400).json({result: false, message: "subscriptionType invalide" });
         }
 
         const subscriptionData = {
@@ -58,7 +58,7 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de l'ajout de l'inscrit." });
+        res.status(500).json({ result: false, message: "Une erreur est survenue lors de l'ajout de l'inscrit." });
     }
 });
 
@@ -68,13 +68,13 @@ router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res
 
         const user = await Student.findOne({ token });
 
-        if (!user) return res.status(403).json({ message: "administrateurs non trouvé" });
+        if (!user) return res.status(403).json({ result: false, message: "administrateurs non trouvé" });
 
-        if (!user.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!user.isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
 
         const studentPayementInfo = await Student.findById(studentId);
 
-        if (!studentPayementInfo) return res.status(404).json({ message: "Étudiant introuvable" });
+        if (!studentPayementInfo) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
         const notPayed = studentPayementInfo.subscription?.amount2Pay || 0
         const period = getSubscriptionPeriod(new Date());
@@ -102,14 +102,14 @@ router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res
             { new: true }
         );
 
-        if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
+        if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
         res.status(200).json({ result: true, message: 'Abonnement mis à jour', data: student });
 
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: error });
+        res.status(500).json({ result: false, message: error });
     }
 });
 
@@ -127,13 +127,13 @@ router.put("/updateCardSubscription", validate(updateCardSubscriptionSchema), as
             { returnDocument: "after" }
         );
 
-        if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
+        if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
         res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
+        res.status(500).json({ result: false, message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
     }
 });
 
@@ -143,7 +143,7 @@ router.put("/updateCardSubscription", validate(updateCardSubscriptionSchema), as
 
         const isAdmin = await Student.findOne({ token });
 
-        if (!isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
 
         const student = await Student.findByIdAndUpdate(
             studentId,
@@ -151,13 +151,13 @@ router.put("/updateCardSubscription", validate(updateCardSubscriptionSchema), as
             { returnDocument: "after" }
         );
 
-        if (!student) return res.status(404).json({ message: "Étudiant introuvable" });
+        if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
         res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
+        res.status(500).json({ result: false, message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
     }
 });
 

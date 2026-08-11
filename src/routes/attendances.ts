@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de la recherche des présences." });
+        res.status(500).json({result: false, message: "Une erreur est survenue lors de la recherche des présences." });
     }
 });
 
@@ -28,7 +28,7 @@ router.post("/addNewAttendance", validate(addNewAttendance), async (req, res) =>
 
         const auth = await Student.findOne({ token });
 
-        if (!auth || !auth.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!auth || !auth.isAdmin) return res.status(403).json({result: false, message: "Accès réservé aux administrateurs" });
 
         const newAttencance = new Attendance({
             attendanceDay: new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Brussels" }),
@@ -44,7 +44,7 @@ router.post("/addNewAttendance", validate(addNewAttendance), async (req, res) =>
             console.log(studentsData);
             console.log("hello world")
 
-        if (studentsData.length === 0) return res.status(404).json({ message: "Élèves introuvables" });
+        if (studentsData.length === 0) return res.status(404).json({result: false, message: "Élèves introuvables" });
 
         for (const student of studentsData) {
             if (student?.subscription?.plan === "carte") {
@@ -66,7 +66,7 @@ router.post("/addNewAttendance", validate(addNewAttendance), async (req, res) =>
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de la présence." });
+        res.status(500).json({result: false, message: "Une erreur est survenue lors de la présence." });
     }
 });
 
@@ -77,7 +77,7 @@ router.put("/updateAttendance", validate(updateAttendance), async (req, res) => 
         const _id = attendanceID
         const auth = await Student.findOne({ token });
 
-        if (!auth || !auth.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!auth || !auth.isAdmin) return res.status(403).json({result: false, message: "Accès réservé aux administrateurs" });
 
         const updatedAttendance = await Attendance.findByIdAndUpdate(
             _id
@@ -97,7 +97,7 @@ router.put("/updateAttendance", validate(updateAttendance), async (req, res) => 
             console.log(studentsData);
             console.log("hello world")
 
-        if (studentsData.length === 0) return res.status(404).json({ message: "Élèves introuvables" });
+        if (studentsData.length === 0) return res.status(404).json({result: false, message: "Élèves introuvables" });
 
         for (const student of studentsData) {
             if (student?.subscription?.plan === "carte") {
@@ -118,7 +118,7 @@ router.put("/updateAttendance", validate(updateAttendance), async (req, res) => 
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de la présence." });
+        res.status(500).json({ result: false, message: "Une erreur est survenue lors de la présence." });
     }
 });
 
@@ -128,20 +128,20 @@ router.delete("/deleteStudent", validate(deleteStudent), async (req, res) => {
 
         const auth = await Student.findOne({ token });
 
-        if (!auth || !auth.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!auth || !auth.isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
 
         const response = await Attendance.findByIdAndUpdate(attendanceId,
             { $pull: { students: studentId } },
             { returnDocument: "after" }
         );
 
-        if (!response) return res.status(404).json({ message: "Date introuvable" });
+        if (!response) return res.status(404).json({ result: false, message: "Date introuvable" });
 
         res.status(200).json({ result: true, message: 'Présence modifiée', data: response });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de la suppression de l'Étudiant." });
+        res.status(500).json({ result: false, message: "Une erreur est survenue lors de la suppression de l'Étudiant." });
     }
 })
 
@@ -152,17 +152,17 @@ router.delete("/deleteDate/:attendanceId", validate(deleteDate), async (req, res
 
         const auth = await Student.findOne({ token });
 
-        if (!auth || !auth.isAdmin) return res.status(403).json({ message: "Accès réservé aux administrateurs" });
+        if (!auth || !auth.isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
 
         const response = await Attendance.findByIdAndDelete(attendanceId);
 
-        if (!response) return res.status(404).json({ message: "Date introuvable" });
+        if (!response) return res.status(404).json({ result: false, message: "Date introuvable" });
 
         res.status(200).json({ result: true, message: 'Présence supprimée', data: response });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Une erreur est survenue lors de la suppression de la date." });
+        res.status(500).json({ result: false, message: "Une erreur est survenue lors de la suppression de la date." });
     }
 })
 
