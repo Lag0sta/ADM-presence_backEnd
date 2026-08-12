@@ -2,7 +2,7 @@ import { Router } from 'express';
 import Attendance from '../models/attendances';
 import Student from '../models/students';
 import { validate } from "../middlewares/validator";
-import { addNewAttendance, updateAttendance, deleteStudent, deleteDate } from "../zodSchemas/attendances.schema";
+import { addNewAttendance, updateAttendance, deleteStudentAttendance, deleteDate } from "../zodSchemas/attendances.schema";
 
 const router = Router();
 
@@ -122,7 +122,7 @@ router.put("/updateAttendance", validate(updateAttendance), async (req, res) => 
     }
 });
 
-router.delete("/deleteStudent", validate(deleteStudent), async (req, res) => {
+router.delete("/deleteStudentAttendance", validate(deleteStudentAttendance), async (req, res) => {
     try {
         const { attendanceId, studentId, token } = req.body;
 
@@ -130,14 +130,25 @@ router.delete("/deleteStudent", validate(deleteStudent), async (req, res) => {
 
         if (!auth || !auth.isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
 
-        const response = await Attendance.findByIdAndUpdate(attendanceId,
+        const updateAttendance = await Attendance.findByIdAndUpdate(attendanceId,
             { $pull: { students: studentId } },
             { returnDocument: "after" }
         );
 
-        if (!response) return res.status(404).json({ result: false, message: "Date introuvable" });
+        if (!updateAttendance) return res.status(404).json({ result: false, message: "Date introuvable" });
 
-        res.status(200).json({ result: true, message: 'Présence modifiée', data: response });
+        const student = await Student.findById(studentId);
+
+        if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
+
+        if(student.subscription?.plan === "carte") {
+            await Student.updateOne(
+                { _id: studentId },
+                { $inc: { "subscription.pointsLeft": 1 } }
+            );
+        }
+
+        res.status(200).json({ result: true, message: 'Présence modifiée', attendanceData: updateAttendance, studentData: student });
 
     } catch (error) {
         console.error(error);
