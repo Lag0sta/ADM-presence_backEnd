@@ -30,6 +30,7 @@ export const updateStudentFileSchema = z.object({
         student: z.object({
             apellido: z.string({ message: "Le apellido doit être une chaîne de caractères", }).optional(),
             name: z.string({ message: "Le nom doit être une chaîne de caractères", }).optional(),
+            age_Group: z.string({ message: "Le groupe d'age doit être une chaîne de caractères", }).optional(),
             subscription: z.object({
                 plan: z.enum(["trimestriel", "carte"], { message: "Le type d'abonnement doit être 'trimestriel' ou 'carte'", }).optional(),
                 startDate: z.preprocess((value) => value === "" ? undefined : value, z.coerce.date({ message: "La date de début n'est pas valide", }).optional()),

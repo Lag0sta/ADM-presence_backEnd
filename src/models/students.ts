@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const studentsSchema = new mongoose.Schema({
   apellido: String,
   name: String,
-  age_group: String,
+  age_Group: String,
   subscription: {
     plan: { 
       type: String,
