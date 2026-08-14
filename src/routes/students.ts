@@ -10,7 +10,7 @@ const router = Router();
 router.get("/", async (req, res) => {
     try {
         const registrants = await Student.find().select(
-            "_id apellido name age_group subscription endDate pointsLeft payementStatus amount2Pay isAdmin"
+            "_id apellido name age_Group subscription endDate pointsLeft payementStatus amount2Pay isAdmin"
         );;
         res.json({ result: true, data: registrants });
 
