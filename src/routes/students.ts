@@ -10,7 +10,7 @@ const router = Router();
 router.get("/", async (req, res) => {
     try {
         const registrants = await Student.find().select(
-            "_id apellido name age_groupe subscription endDate pointsLeft payementStatus amount2Pay isAdmin"
+            "_id apellido name age_group subscription endDate pointsLeft payementStatus amount2Pay isAdmin"
         );;
         res.json({ result: true, data: registrants });
 
@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
 // Ajouter un nouvel inscrit
 router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
     try {
-        const { apellido, name, ageGroupe, subscriptionType, amount2Pay } = req.body;
+        const { apellido, name, age_Group, subscriptionType, amount2Pay } = req.body;
         console.log("données reçues:", { apellido, name, subscriptionType, amount2Pay })
 
         const periodTrimestriel = getQuarterlySubscriptionPeriod(new Date());
@@ -52,7 +52,7 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
         const newStudent = new Student({
             apellido,
             name,
-            age_groupe: ageGroupe,
+            age_Group: age_Group,
             subscription: subscriptionData,
             isAdmin: false
         });
