@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import Student from '../models/students';
 import { validate } from "../middlewares/validator";
-import { getQuarterlySubscriptionPeriod } from "../utils/date";
+import { getQuarterlySubscriptionPeriod, getAnnualSubscriptionPeriod } from "../utils/date";
 import { addStudentSchema, updateCardSubscriptionSchema, newSubscriptionSchema, updateStudentFileSchema } from "../zodSchemas/students.schema";
 
 const router = Router();
@@ -27,14 +27,14 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
         console.log("données reçues:", { apellido, name, subscriptionType, amount2Pay })
 
         const periodTrimestriel = getQuarterlySubscriptionPeriod(new Date());
-        const periodAnnual = getQuarterlySubscriptionPeriod(new Date());
+        const periodAnnual = getAnnualSubscriptionPeriod(new Date());
 
         const student = await Student.findOne({ name, apellido });
 
         if (student) {
             return res.status(400).json({ result: false, message: "L'utilisateur existe deja" });
         }
-        
+
         if (!["trimestriel", "carte", "annuel"].includes(subscriptionType)) {
             return res.status(400).json({ result: false, message: "subscriptionType invalide" });
         }
