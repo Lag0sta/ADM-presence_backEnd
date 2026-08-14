@@ -20,7 +20,7 @@ export const updateStudentFileSchema = z.object({
     updateData: z.object({
         admin: z.object({
             subscription: z.object({
-                plan: z.enum(["trimestriel", "carte"], { message: "Le type d'abonnement doit être 'trimestriel' ou 'carte'", }).optional(),
+                plan: z.enum(["trimestriel", "carte", "annuel"], { message: "Le type d'abonnement doit être 'trimestriel' ou 'carte'", }).optional(),
                 startDate: z.preprocess((value) => value === "" ? undefined : value, z.coerce.date({ message: "La date de début n'est pas valide", }).optional()),
                 endDate: z.preprocess((value) => value === "" ? undefined : value, z.coerce.date({ message: "La date de fin n'est pas valide", }).optional()),
                 pointsLeft: z.number({ message: "Le nombre de points doit être un nombre", }).optional(),

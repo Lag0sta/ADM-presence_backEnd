@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 const studentsSchema = new mongoose.Schema({
   apellido: String,
   name: String,
-  age_group: String,
+  age_group: ["adult", "underaged"],
   subscription: {
-    plan: {
+    plan: { 
       type: String,
       enum: ["trimestriel", "carte", "annuel"],
       required: true,

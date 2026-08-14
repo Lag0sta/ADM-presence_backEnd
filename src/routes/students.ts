@@ -152,7 +152,7 @@ router.put("/updateCardSubscription", validate(updateCardSubscriptionSchema), as
 
             return res.status(200).json({ result: true, message: 'Abonnement mis à jour', data: updatedStudent });
         }
-        
+
         res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
 
     } catch (error) {
