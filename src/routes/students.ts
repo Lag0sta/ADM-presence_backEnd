@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({result: false, message: "Une erreur est survenue lors de la recherche des inscrits." });
+        res.status(500).json({ result: false, message: "Une erreur est survenue lors de la recherche des inscrits." });
     }
 });
 
@@ -30,7 +30,7 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
         const periodAnnual = getQuarterlySubscriptionPeriod(new Date());
 
         if (!["trimestriel", "carte"].includes(subscriptionType)) {
-            return res.status(400).json({result: false, message: "subscriptionType invalide" });
+            return res.status(400).json({ result: false, message: "subscriptionType invalide" });
         }
 
         const subscriptionData = {
@@ -133,30 +133,26 @@ router.put("/updateCardSubscription", validate(updateCardSubscriptionSchema), as
 
         if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
-        res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
+        if (student.subscription?.pointsLeft === 0) {
+            const updatedStudent = await Student.findByIdAndUpdate(
+                studentId,
+                {
+                    $set: {
+                        "subscription.plan": null,
+                        "subscription.startDate": null,
+                        "subscription.endDate": null,
+                        "subscription.pointsLeft": null,
+                        "subscription.amount2Pay": null,
+                    },
+                },
+                { returnDocument: "after" }
+            );
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ result: false, message: "Une erreur est survenue lors de la mise à jour de l'inscrit." });
-    }
-});
+            if(!updatedStudent) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
-router.put("/updateCardSubscription", validate(updateCardSubscriptionSchema), async (req, res) => {
-    try {
-        const { studentId, token } = req.body;
-
-        const isAdmin = await Student.findOne({ token });
-
-        if (!isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
-
-        const student = await Student.findByIdAndUpdate(
-            studentId,
-            { $inc: { pointsLeft: -1 } },
-            { returnDocument: "after" }
-        );
-
-        if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
-
+            return res.status(200).json({ result: true, message: 'Abonnement mis à jour', data: updatedStudent });
+        }
+        
         res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
 
     } catch (error) {
