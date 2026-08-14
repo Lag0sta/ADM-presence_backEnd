@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import Student from '../models/students';
 import { validate } from "../middlewares/validator";
-import { getSubscriptionPeriod } from "../utils/date";
+import { getQuarterlySubscriptionPeriod } from "../utils/date";
 import { addStudentSchema, updateCardSubscriptionSchema, newSubscriptionSchema, updateStudentFileSchema } from "../zodSchemas/students.schema";
 
 const router = Router();
@@ -23,10 +23,11 @@ router.get("/", async (req, res) => {
 // Ajouter un nouvel inscrit
 router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
     try {
-        const { apellido, name, subscriptionType, amount2Pay } = req.body;
+        const { apellido, name, ageGroupe, subscriptionType, amount2Pay } = req.body;
         console.log("données reçues:", { apellido, name, subscriptionType, amount2Pay })
 
-        const period = getSubscriptionPeriod(new Date());
+        const periodTrimestriel = getQuarterlySubscriptionPeriod(new Date());
+        const periodAnnual = getQuarterlySubscriptionPeriod(new Date());
 
         if (!["trimestriel", "carte"].includes(subscriptionType)) {
             return res.status(400).json({result: false, message: "subscriptionType invalide" });
@@ -35,9 +36,13 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
         const subscriptionData = {
             plan: subscriptionType,
             amount2Pay: amount2Pay,
+            ...(subscriptionType === "annuel" && {
+                startDate: periodAnnual.startDate,
+                endDate: periodAnnual.endDate,
+            }),
             ...(subscriptionType === "trimestriel" && {
-                startDate: period.startDate,
-                endDate: period.endDate,
+                startDate: periodTrimestriel.startDate,
+                endDate: periodTrimestriel.endDate,
             }),
             ...(subscriptionType === "carte" && {
                 pointsLeft: 10,
@@ -47,11 +52,10 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
         const newStudent = new Student({
             apellido,
             name,
+            age_groupe: ageGroupe,
             subscription: subscriptionData,
             isAdmin: false
         });
-
-        console.log("période calculée:", period)
 
         const savedStudent = await newStudent.save();
         res.status(201).json({ result: true, message: 'élève ajouté', data: savedStudent });
@@ -77,7 +81,7 @@ router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res
         if (!studentPayementInfo) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
         const notPayed = studentPayementInfo.subscription?.amount2Pay || 0
-        const period = getSubscriptionPeriod(new Date());
+        const period = getQuarterlySubscriptionPeriod(new Date());
 
         let updateData: Record<string, any> = {
             "subscription.plan": subscriptionType,

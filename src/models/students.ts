@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 const studentsSchema = new mongoose.Schema({
   apellido: String,
   name: String,
-
+  age_groupe: String,
   subscription: {
     plan: {
       type: String,
-      enum: ["trimestriel", "carte"],
+      enum: ["trimestriel", "carte", "annuel"],
       required: true,
     },
 
