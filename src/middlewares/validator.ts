@@ -15,6 +15,7 @@ export const validate = <T>(schema: ZodType<T>) =>
         }));
 
         return res.status(400).json({
+          result: false,
           message: "Validation error",
           errors: formattedErrors,
         });
