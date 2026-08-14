@@ -29,7 +29,7 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
         const periodTrimestriel = getQuarterlySubscriptionPeriod(new Date());
         const periodAnnual = getQuarterlySubscriptionPeriod(new Date());
 
-        if (!["trimestriel", "carte"].includes(subscriptionType)) {
+        if (!["trimestriel", "carte", "annuel"].includes(subscriptionType)) {
             return res.status(400).json({ result: false, message: "subscriptionType invalide" });
         }
 
