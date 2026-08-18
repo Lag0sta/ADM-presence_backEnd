@@ -9,7 +9,7 @@ const router = Router();
 // Récupérer toutes les présences
 router.get("/", async (req, res) => {
     try {
-        const response = await Attendance.find().populate("students", '_id apellido name');
+        const response = await Attendance.find().populate("students", '_id ageGroup apellido name');
         // res.json({ result: true, message: `Liste des présences trouvé : ${response.length}` , data: response });
         res.json({ result: true, message: `Liste des présences trouvé : xxx` , data: response });
 
