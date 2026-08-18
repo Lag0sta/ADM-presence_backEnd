@@ -171,7 +171,7 @@ router.put("/updateCardSubscription", validate(updateCardSubscriptionSchema), as
 router.put("/updateStudentFile", validate(updateStudentFileSchema), async (req, res) => {
     try {
         const { studentId, token, updateData } = req.body;
-
+        console.log(typeof updateData.student.subscription.pointsLeft);
         const isAdmin = await Student.findOne({ token });
 
         if (!isAdmin) return res.status(403).json({ result: false, message: "Accès réservé aux administrateurs" });
