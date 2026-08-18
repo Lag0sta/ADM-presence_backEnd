@@ -24,7 +24,7 @@ export const updateStudentFileSchema = z.object({
                 startDate: z.preprocess((value) => value === "" ? undefined : value, z.coerce.date({ message: "La date de début n'est pas valide", }).optional()),
                 endDate: z.preprocess((value) => value === "" ? undefined : value, z.coerce.date({ message: "La date de fin n'est pas valide", }).optional()),
                 pointsLeft: z.number({ message: "Le nombre de points doit être un nombre", }).optional(),
-                amount2Pay: z.number({ message: "Le montant à payer doit être un nombre", }).optional(),
+                amount2Pay: z.number({ message: "Le montant à payer doit être un nombre ", }).optional(),
             }).optional(),
         }).optional(),
         student: z.object({

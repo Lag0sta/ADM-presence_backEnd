@@ -1,6 +1,20 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodType, ZodError } from "zod";
 
+// const formattedErrors = err.issues.map((e) => {
+//   const field = e.path.join(".");
+//   const value = e.path.reduce(
+//     (obj: any, key) => obj?.[key],
+//     req.body
+//   );
+
+//   return {
+//     field,
+//     message: e.message,
+//     value,
+//     type: typeof value,
+//   };
+// });
 export const validate = <T>(schema: ZodType<T>) =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -9,10 +23,21 @@ export const validate = <T>(schema: ZodType<T>) =>
       next();
     } catch (err) {
       if (err instanceof ZodError) {
-        const formattedErrors = err.issues.map((e) => ({
-          field: e.path.join("."), // gère les objets imbriqués
-          message: e.message,
-        }));
+        const formattedErrors = err.issues.map((e) => {
+          const field = e.path.join(".");
+
+          const value = e.path.reduce(
+            (obj: any, key) => obj?.[key],
+            req.body
+          );
+
+          return {
+            field,
+            message: e.message,
+            value,
+            type: typeof value,
+          };
+        });
 
         return res.status(400).json({
           result: false,
