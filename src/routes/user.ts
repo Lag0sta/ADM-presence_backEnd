@@ -15,7 +15,7 @@ router.post("/userInfo", validate(userInfo), async (req, res) => {
             "apellido name subscription endDate pointsLeft payementStatus amount2Pay isAdmin"
         );
 
-        if (!user) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
+        if (!user) return res.status(404).json({ result: false, message: "Utilisateur introuvable" });
 
         res.json({ result: true, data: user });
 
@@ -48,7 +48,7 @@ router.put("/updateUserFile", validate(updateUserFile), async (req, res) => {
 
             if (!user) return res.status(404).json({ result: false, message: "utilisateur introuvable" });
 
-            res.status(200).json({ result: true, message: 'Élève mis à jour', data: {apellido: user.apellido,
+            res.status(200).json({ result: true, message: 'Utilisateur mis à jour', data: {apellido: user.apellido,
                                                                                      name: user.name,
                                                                                      subscription: user.subscription}});
         }
@@ -83,7 +83,7 @@ router.put("/updateUserInfo", validate(updateUserInfo), async (req, res) => {
 
             if (!user) return res.status(404).json({ result: false, message: "utilisateur introuvable" });
 
-            res.status(200).json({ result: true, message: 'Élève mis à jour', apellido: user.apellido });
+            res.status(200).json({ result: true, message: 'Utilisateur mis à jour', apellido: user.apellido });
         }
     } catch (error) {
         console.error(error);
