@@ -1,14 +1,29 @@
 export function getQuarterlySubscriptionPeriod(date = new Date()) {
-  
   const year = date.getFullYear();
   const month = date.getMonth();
 
-  // Trouver le début du trimestre (0, 3, 6, 9)
-  const startMonth = Math.floor(month / 3) * 3;
+  let startMonth;
 
-  const startDate = new Date(year, startMonth, 1);
+  if (month >= 8 && month <= 10) {
+    // Septembre - Novembre
+    startMonth = 8;
+  } else if (month >= 11 || month <= 1) {
+    // Décembre - Février
+    startMonth = 11;
+  } else if (month >= 2 && month <= 4) {
+    // Mars - Mai
+    startMonth = 2;
+  } else {
+    // Juin - Août
+    startMonth = 5;
+  }
 
-  const endDate = new Date(year, startMonth + 3, 1);
+  const startYear = startMonth === 11 && month <= 1
+    ? year - 1
+    : year;
+
+  const startDate = new Date(startYear, startMonth, 1);
+  const endDate = new Date(startYear, startMonth + 3, 1);
 
   return {
     startDate,
