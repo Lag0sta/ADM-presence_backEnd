@@ -35,7 +35,7 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
             return res.status(400).json({ result: false, message: "L'utilisateur existe deja" });
         }
 
-        if (!["trimestriel", "carte", "annuel"].includes(subscriptionType)) {
+        if (!["trimestriel", "carte", "annuel", "journalier"].includes(subscriptionType)) {
             return res.status(400).json({ result: false, message: "subscriptionType invalide" });
         }
 
@@ -50,9 +50,13 @@ router.post("/addNewStudent", validate(addStudentSchema), async (req, res) => {
                 startDate: periodTrimestriel.startDate,
                 endDate: periodTrimestriel.endDate,
             }),
+             ...(subscriptionType === "journalier" && {
+                pointsLeft: 10,
+            }),
             ...(subscriptionType === "carte" && {
                 pointsLeft: 10,
             }),
+           
         };
 
         const newStudent = new Student({

@@ -7,7 +7,7 @@ const studentsSchema = new mongoose.Schema({
   subscription: {
     plan: { 
       type: String,
-      enum: ["trimestriel", "carte", "annuel"],
+      enum: ["trimestriel", "carte", "annuel","journalier"],
       required: true,
     },
 
