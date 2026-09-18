@@ -98,6 +98,7 @@ router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res
             "subscription.amount2Pay": amount2Pay + notPayed,
         };
 
+        
         if (subscriptionType === "trimestriel") {
             updateData["subscription.startDate"] = period.startDate;
             updateData["subscription.endDate"] = period.endDate;
