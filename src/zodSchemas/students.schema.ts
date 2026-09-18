@@ -22,7 +22,7 @@ export const updateStudentFileSchema = z.object({
         z.object({
             admin: z.object({
                 subscription: z.object({
-                    plan: z.enum(["trimestriel", "carte", "annuel","journalier"], { message: "Le type d'abonnement n'est pas valide", }).optional(),
+                    plan: z.enum(["trimestriel", "carte", "annuel", "journalier"], { message: "Le type d'abonnement n'est pas valide", }).optional(),
 
                     startDate: z.preprocess(
                         (value) => (value === "" ? undefined : value),
@@ -70,6 +70,27 @@ export const updateStudentFileSchema = z.object({
         }),
     ]),
 });
+
+
+
+export const deleteStudentSubscriptionSchema = z.object({
+    studentId: z.string({ message: "L'id de l'élève est obligatoire et doit être une chaîne de caractères", }).regex(objectIdRegex, { message: "L'id de l'élève doit être un ObjectId valide", }),
+    token: z.string({ message: "Le token est obligatoire et doit être une chaîne de caractères", }).min(1, { message: "Le token ne peut pas être vide", }),
+
+    updateData: z.union([
+        z.object({
+            subscription: z
+                .object({
+                    plan: z.null().optional(),
+                    startDate: z.null().optional(),
+                    endDate: z.null().optional(),
+                    pointsLeft: z.null().optional(),
+                })
+                .optional(),
+            }),
+    ]),
+});
+
 
 export const newSubscriptionSchema = z.object({
     studentId: z.string().regex(objectIdRegex, { message: "L'id de l'élève doit être un ObjectId valide" }),
