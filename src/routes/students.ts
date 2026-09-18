@@ -146,10 +146,12 @@ router.put("/deleteSubscription", validate(deleteStudentSubscriptionSchema), asy
                     "subscription.pointsLeft": null,
                 }
             }
+            ,{ new: true }
+
         );
 
         if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
-        
+
 
         res.status(200).json({ result: true, message: `abonnement : ${student.subscription?.plan}`, data: student });
 
