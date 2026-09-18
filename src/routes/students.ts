@@ -130,7 +130,7 @@ router.post("/newSubscription", validate(newSubscriptionSchema), async (req, res
 
 router.put("/deleteSubscription", validate(deleteStudentSubscriptionSchema), async (req, res) => {
     try {
-        const { studentId, token, updateData } = req.body;
+        const { studentId, token } = req.body;
 
         const isAdmin = await Student.findOne({ token });
 
@@ -150,7 +150,7 @@ router.put("/deleteSubscription", validate(deleteStudentSubscriptionSchema), asy
 
         if (!student) return res.status(404).json({ result: false, message: "Étudiant introuvable" });
 
-        res.status(200).json({ result: true, message: 'Élève mis à jour', data: student });
+        res.status(200).json({ result: true, message: 'Abonnement annulé', data: student });
 
     } catch (error) {
         console.error(error);
