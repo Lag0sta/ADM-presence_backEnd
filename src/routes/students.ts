@@ -140,7 +140,7 @@ router.put("/deleteSubscription", validate(deleteStudentSubscriptionSchema), asy
             studentId,
             {
                 $set: {
-                    "subscription.type": null,
+                    "subscription.plan": null,
                     "subscription.startDate": null,
                     "subscription.endDate": null,
                     "subscription.pointsLeft": null,
