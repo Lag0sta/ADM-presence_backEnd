@@ -51,7 +51,7 @@ export const updateStudentFileSchema = z.object({
 
                 subscription: z
                     .object({
-                        plan: z.enum(["trimestriel", "carte"], { message: "Le type d'abonnement n'est pas valide", }).optional(),
+                        plan: z.enum(["trimestriel", "carte", "annuel", "journalier"], { message: "Le type d'abonnement n'est pas valide", }).optional(),
 
                         startDate: z.preprocess(
                             (value) => (value === "" ? undefined : value),
